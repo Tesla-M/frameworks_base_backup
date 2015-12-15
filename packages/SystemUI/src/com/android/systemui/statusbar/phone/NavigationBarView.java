@@ -256,12 +256,6 @@ public class NavigationBarView extends LinearLayout {
         mSettingsObserver.unobserve();
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        mSettingsObserver.unobserve();
-    }
-
     public BarTransitions getBarTransitions() {
         return mBarTransitions;
     }
@@ -875,8 +869,6 @@ public class NavigationBarView extends LinearLayout {
         setDisabledFlags(mDisabledFlags, true /* force */);
         setMenuVisibility(mShowMenu, true);
     }
-
-    private class SettingsObserver extends ContentObserver {
 
         SettingsObserver(Handler handler) {
             super(handler);
