@@ -888,7 +888,6 @@ public class NavigationBarView extends LinearLayout {
             getContext().getContentResolver().unregisterContentObserver(this);
         }
 
-        @Override
         public void onChange(boolean selfChange) {
             mShowDpadArrowKeys = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.NAVIGATION_BAR_MENU_ARROW_KEYS, 0) != 0;
@@ -899,6 +898,5 @@ public class NavigationBarView extends LinearLayout {
                 }
             }
             setNavigationIconHints(mNavigationIconHints, true);
-        }
-    }
+     }
 }
