@@ -256,12 +256,6 @@ public class NavigationBarView extends LinearLayout {
         mSettingsObserver.unobserve();
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        mSettingsObserver.unobserve();
-    }
-
     public BarTransitions getBarTransitions() {
         return mBarTransitions;
     }
@@ -876,6 +870,7 @@ public class NavigationBarView extends LinearLayout {
         setMenuVisibility(mShowMenu, true);
     }
 
+
     private class SettingsObserver extends UserContentObserver {
 
         SettingsObserver(Handler handler) {
@@ -897,7 +892,6 @@ public class NavigationBarView extends LinearLayout {
             super.unobserve();
             mContext.getContentResolver().unregisterContentObserver(this);
 
-        @Override
         public void onChange(boolean selfChange) {
             mShowDpadArrowKeys = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.NAVIGATION_BAR_MENU_ARROW_KEYS, 0) != 0;
@@ -908,6 +902,5 @@ public class NavigationBarView extends LinearLayout {
                 }
             }
             setNavigationIconHints(mNavigationIconHints, true);
-        }
-    }
+     }
 }
