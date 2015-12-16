@@ -23,8 +23,8 @@ import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.app.ActivityManagerNative;
 import android.app.StatusBarManager;
-import android.content.ContentResolver;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -96,6 +96,7 @@ public class NavigationBarView extends LinearLayout {
     private SettingsObserver mSettingsObserver;
     private GestureDetector mDoubleTapGesture;
     private boolean mDoubleTapToSleep;
+    private boolean mShowDpadArrowKeys;
 
     /**
      * Tracks the current visibilities of the far left (R.id.one) and right (R.id.six) buttons
@@ -121,8 +122,6 @@ public class NavigationBarView extends LinearLayout {
     private OnTouchListener mRecentsPreloadListener;
     private OnTouchListener mHomeSearchActionListener;
     private OnLongClickListener mRecentsBackListener;
-
-    private boolean mShowDpadArrowKeys;
 
     // performs manual animation in sync with layout transitions
     private final NavTransitionListener mTransitionListener = new NavTransitionListener();
@@ -237,6 +236,8 @@ public class NavigationBarView extends LinearLayout {
                 return true;
             }
         });
+
+        mSettingsObserver = new SettingsObserver(new Handler());
     }
 
     @Override
@@ -247,7 +248,6 @@ public class NavigationBarView extends LinearLayout {
         if (root != null) {
             root.setDrawDuringWindowsAnimating(true);
         }
-        mSettingsObserver.observe();
     }
 
     @Override
@@ -365,9 +365,8 @@ public class NavigationBarView extends LinearLayout {
         ((ImageView)getRecentsButton()).setImageDrawable(mVertical ? mRecentLandIcon : mRecentIcon);
 
         final boolean showImeButton = ((hints & StatusBarManager.NAVIGATION_HINT_IME_SHOWN) != 0)
-                                && !mShowDpadArrowKeys;
+                                && !mShowDpadArrowKeys;        
         getImeSwitchButton().setVisibility(showImeButton ? View.VISIBLE : View.INVISIBLE);
-
 
         setDisabledFlags(mDisabledFlags, true);
 
@@ -564,6 +563,7 @@ public class NavigationBarView extends LinearLayout {
         mRotatedViews[Configuration.ORIENTATION_LANDSCAPE].setVisibility(View.GONE);
         mCurrentView = mRotatedViews[orientation];
         mCurrentView.setVisibility(View.VISIBLE);
+
         setLayoutTransitionsEnabled(mLayoutTransitionsEnabled);
 
         if (NavbarEditor.isDevicePhone(getContext())) {
@@ -636,6 +636,7 @@ public class NavigationBarView extends LinearLayout {
         boolean isLayoutRtl = getResources().getConfiguration()
                 .getLayoutDirection() == LAYOUT_DIRECTION_RTL;
         if (mIsLayoutRtl != isLayoutRtl) {
+
             mIsLayoutRtl = isLayoutRtl;
             reorient();
         }
@@ -649,7 +650,6 @@ public class NavigationBarView extends LinearLayout {
                     changed?"changed":"notchanged", left, top, right, bottom));
         super.onLayout(changed, left, top, right, bottom);
     }
-
     // uncomment this for extra defensiveness in WORKAROUND_INVALID_LAYOUT situations: if all else
     // fails, any touch on the display will fix the layout.
     @Override
@@ -740,37 +740,6 @@ public class NavigationBarView extends LinearLayout {
 
     public interface OnVerticalChangedListener {
         void onVerticalChanged(boolean isVertical);
-    }
-
-    private class SettingsObserver extends UserContentObserver {
-
-        SettingsObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        protected void observe() {
-            super.observe();
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.DOUBLE_TAP_SLEEP_NAVBAR),
-                    false, this, UserHandle.USER_ALL);
-
-            // intialize mModlockDisabled
-            onChange(false);
-        }
-
-        @Override
-        protected void unobserve() {
-            super.unobserve();
-            mContext.getContentResolver().unregisterContentObserver(this);
-        }
-
-        @Override
-        protected void update() {
-            mDoubleTapToSleep = Settings.System.getIntForUser(mContext.getContentResolver(),
-                    Settings.System.DOUBLE_TAP_SLEEP_NAVBAR, 0, UserHandle.USER_CURRENT) != 0;
-        }
     }
 
     void setListeners(OnClickListener recentsClickListener, OnTouchListener recentsPreloadListener,
@@ -870,15 +839,19 @@ public class NavigationBarView extends LinearLayout {
         setMenuVisibility(mShowMenu, true);
     }
 
-
     private class SettingsObserver extends UserContentObserver {
 
         SettingsObserver(Handler handler) {
             super(handler);
         }
 
-        void observe() {
-            ContentResolver resolver = getContext().getContentResolver();
+        @Override
+        protected void observe() {
+            super.observe();
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.DOUBLE_TAP_SLEEP_NAVBAR),
+                    false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_MENU_ARROW_KEYS),
                     false, this);
@@ -891,7 +864,15 @@ public class NavigationBarView extends LinearLayout {
         protected void unobserve() {
             super.unobserve();
             mContext.getContentResolver().unregisterContentObserver(this);
+        }
 
+        @Override
+        protected void update() {
+            mDoubleTapToSleep = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.DOUBLE_TAP_SLEEP_NAVBAR, 0, UserHandle.USER_CURRENT) != 0;
+        }
+        
+        @Override
         public void onChange(boolean selfChange) {
             mShowDpadArrowKeys = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.NAVIGATION_BAR_MENU_ARROW_KEYS, 0) != 0;
@@ -902,5 +883,6 @@ public class NavigationBarView extends LinearLayout {
                 }
             }
             setNavigationIconHints(mNavigationIconHints, true);
-     }
+        }
+    }
 }
