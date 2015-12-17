@@ -3339,6 +3339,18 @@ public final class Settings {
         public static final String BATTERY_LIGHT_MEDIUM_COLOR = "battery_light_medium_color";
 
         /**
+         * Give Missed call notifications a breathing effect
+         * @hide
+         */
+        public static final String KEY_MISSED_CALL_BREATH = "missed_call_breath";
+
+        /**
+         * Give Voicemail notifications a breathing effect
+         * @hide
+         */
+        public static final String KEY_VOICEMAIL_BREATH = "voicemail_breath";
+
+        /**
          * What color to use for the battery LED while charging - full
          * @hide
          */
@@ -3753,6 +3765,12 @@ public final class Settings {
         public static final String KEY_APP_SWITCH_LONG_PRESS_ACTION = "key_app_switch_long_press_action";
 
         /**
+        * Volume rocker wake
+         * @hide
+         */
+        public static final String VOLUME_ROCKER_WAKE = "volume_rocker_wake";
+
+        /**
          * Network traffic indicator, goes from least to greatest significant bitwise
          * 0 = Display up-stream traffic if set
          * 1 = Display down-stream traffic if set
@@ -3797,6 +3815,13 @@ public final class Settings {
          * @hide
          */
         public static final String RECENTS_FULL_SCREEN = "recents_full_screen";
+
+        /**
+         * Whether to display powermenu on secure lockscreen
+         *
+         * @hide
+         */
+        public static final String POWER_MENU_LOCKSCREEN = "power_menu_lockscreen";
 
         /**
          * Whether to display sound panel in the power menu
